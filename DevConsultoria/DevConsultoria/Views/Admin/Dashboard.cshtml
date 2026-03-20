@@ -1,0 +1,449 @@
+﻿@model List<DevConsultoria.Models.Solicitacao>
+@{
+    ViewData["Title"] = "Dashboard - Tech Líder";
+}
+
+@section Styles {
+    <style>
+        .dash-header {
+            background: linear-gradient(135deg, #111827, #0d1b2e);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 32px 0;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: transform .2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+            }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            color: #64748b;
+            font-size: .82rem;
+            margin-top: 4px;
+        }
+
+        .sol-table {
+            background: #111827;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+            .sol-table table {
+                margin: 0;
+            }
+
+            .sol-table thead th {
+                background: rgba(255,255,255,0.04);
+                color: #64748b;
+                font-size: .78rem;
+                font-weight: 600;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+                padding: 14px 16px;
+            }
+
+            .sol-table tbody td {
+                border-bottom: 1px solid rgba(255,255,255,0.04);
+                padding: 14px 16px;
+                color: #cbd5e1;
+                font-size: .88rem;
+                vertical-align: middle;
+            }
+
+            .sol-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .sol-table tbody tr:hover td {
+                background: rgba(255,255,255,0.02);
+            }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+
+        .status-pendente {
+            background: rgba(234,179,8,0.15);
+            color: #fbbf24;
+        }
+
+        .status-aprovada {
+            background: rgba(34,197,94,0.15);
+            color: #4ade80;
+        }
+
+        .status-reprovada {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+        }
+
+        .btn-aprovar {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #4ade80;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: .78rem;
+            font-weight: 600;
+            transition: all .2s;
+        }
+
+            .btn-aprovar:hover {
+                background: rgba(34,197,94,0.2);
+                color: #4ade80;
+            }
+
+        .btn-reprovar {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: .78rem;
+            font-weight: 600;
+            transition: all .2s;
+        }
+
+            .btn-reprovar:hover {
+                background: rgba(239,68,68,0.2);
+                color: #f87171;
+            }
+
+        .modal-content {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .form-control, .form-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+            border-radius: 10px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background: rgba(255,255,255,0.08);
+                border-color: #00d4ff;
+                color: #fff;
+                box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+            }
+
+        .form-label {
+            color: #94a3b8;
+            font-size: .88rem;
+        }
+
+        .form-select option {
+            background: #111827;
+            color: #fff;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #475569;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 12px;
+                display: block;
+            }
+    </style>
+}
+
+<div class="dash-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p class="text-secondary small mb-1">
+                    <i class="bi bi-person-check-fill text-info me-1"></i>
+                    Bem-vindo, <strong class="text-info">@User.Identity?.Name</strong>
+                    &nbsp;·&nbsp;
+                    <span class="badge bg-warning text-dark rounded-pill">Tech Líder</span>
+                </p>
+                <h1 class="section-title mb-0">Dashboard de Solicitações</h1>
+            </div>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-eye me-1"></i>Ver site
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-top:32px">
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(234,179,8,0.12);color:#fbbf24"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                    <div class="stat-num">@ViewBag.TotalPendentes</div>
+                    <div class="stat-lbl">Pendentes</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(34,197,94,0.12);color:#4ade80"><i class="bi bi-check-circle-fill"></i></div>
+                <div>
+                    <div class="stat-num">@ViewBag.TotalAprovadas</div>
+                    <div class="stat-lbl">Aprovadas</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(239,68,68,0.12);color:#f87171"><i class="bi bi-x-circle-fill"></i></div>
+                <div>
+                    <div class="stat-num">@ViewBag.TotalReprovadas</div>
+                    <div class="stat-lbl">Reprovadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title mb-0">
+            <i class="bi bi-list-check text-info me-2"></i>Solicitações Recebidas
+        </h2>
+        <span class="badge bg-dark border border-secondary text-secondary rounded-pill px-3">
+            @Model.Count total
+        </span>
+    </div>
+
+    <div class="sol-table mb-5">
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p class="fw-semibold text-secondary">Nenhuma solicitação recebida ainda.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-borderless mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Dev</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sol in Model)
+                        {
+                            <tr id="row-@sol.Id">
+                                <td class="text-secondary">@sol.Id</td>
+                                <td>
+                                    <div class="fw-semibold text-white">@sol.NomeCliente</div>
+                                    <small class="text-secondary">@sol.EmailCliente</small>
+                                </td>
+                                <td>@sol.Problema?.Nome</td>
+                                <td class="text-secondary">@sol.DataSolicitacao.ToString("dd/MM/yy HH:mm")</td>
+                                <td>
+                                    <span class="status-badge status-@sol.Status.ToString().ToLower()" id="status-@sol.Id">
+                                        @if (sol.Status == StatusSolicitacao.Pendente)
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                        }
+                                        else if (sol.Status == StatusSolicitacao.Aprovada)
+                                        {
+
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        }
+                                        @sol.Status
+                                    </span>
+                                </td>
+                                <td id="dev-@sol.Id" class="text-secondary">@(sol.DevDesignado ?? "-")</td>
+                                <td>
+                                    @if (sol.Status == StatusSolicitacao.Pendente)
+                                    {
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-aprovar"
+                                                    onclick="abrirDecisao(@sol.Id, '@Html.Raw(sol.NomeCliente)', '@Html.Raw(sol.Problema?.Nome)', '@sol.NomeWhatsApp', true)">
+                                                <i class="bi bi-check-lg me-1"></i>Aprovar
+                                            </button>
+                                            <button class="btn btn-reprovar"
+                                                    onclick="abrirDecisao(@sol.Id, '@Html.Raw(sol.NomeCliente)', '@Html.Raw(sol.Problema?.Nome)', '@sol.NomeWhatsApp', false)">
+                                                <i class="bi bi-x-lg me-1"></i>Reprovar
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-secondary small">@(sol.Observacao ?? "—")</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalDecisao" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header px-4 pt-4 pb-3">
+                <h5 class="modal-title" id="modalDecisaoTitulo" style="font-family:'Syne',sans-serif;font-weight:700;color:#fff"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <div class="mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)">
+                    <div class="small text-secondary mb-1">Solicitação</div>
+                    <div id="mdInfoCliente" class="text-white fw-semibold"></div>
+                    <div id="mdInfoServico" class="text-secondary small"></div>
+                </div>
+                <div id="secaoDevDesignado" class="mb-3">
+                    <label class="form-label">Dev Disponível</label>
+                    <select class="form-select" id="devSelecionado">
+                        <option value="">-- Selecione --</option>
+                        @foreach (var dev in (List<string>)ViewBag.Devs)
+                        {
+                            <option value="@dev">@dev</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">Observação</label>
+                    <textarea class="form-control" id="observacaoDecisao" rows="3" placeholder="Ex: Será iniciado na segunda-feira..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer px-4 pb-4">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn" id="btnConfirmarDecisao" onclick="confirmarDecisao()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let decisaoAtual = {};
+
+        function abrirDecisao(id, cliente, servico, whats, aprovar) {
+            decisaoAtual = { id, aprovar, whats };
+            document.getElementById('modalDecisaoTitulo').textContent = aprovar ? '✅ Aprovar Solicitação' : '❌ Reprovar Solicitação';
+            document.getElementById('mdInfoCliente').textContent = cliente;
+            document.getElementById('mdInfoServico').textContent = servico;
+            document.getElementById('secaoDevDesignado').style.display = aprovar ? 'block' : 'none';
+            document.getElementById('devSelecionado').value = '';
+            document.getElementById('observacaoDecisao').value = '';
+            const btn = document.getElementById('btnConfirmarDecisao');
+            if (aprovar) {
+                btn.className = 'btn btn-success px-4';
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Aprovar e Encaminhar';
+            } else {
+                btn.className = 'btn btn-danger px-4';
+                btn.innerHTML = '<i class="bi bi-x-lg me-1"></i>Confirmar Reprovação';
+            }
+            new bootstrap.Modal(document.getElementById('modalDecisao')).show();
+        }
+
+        async function confirmarDecisao() {
+            const dev = document.getElementById('devSelecionado').value;
+            const obs = document.getElementById('observacaoDecisao').value;
+
+            if (decisaoAtual.aprovar && !dev) {
+                alert('Selecione um dev para designar.');
+                return;
+            }
+
+            const resp = await fetch('/Admin/Aprovar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    solicitacaoId: decisaoAtual.id,
+                    devDesignado: dev,
+                    observacao: obs,
+                    aprovado: decisaoAtual.aprovar
+                })
+            });
+
+            const data = await resp.json();
+            bootstrap.Modal.getInstance(document.getElementById('modalDecisao')).hide();
+
+            const statusEl = document.getElementById(`status-${decisaoAtual.id}`);
+            const devEl = document.getElementById(`dev-${decisaoAtual.id}`);
+
+            if (decisaoAtual.aprovar) {
+                statusEl.className = 'status-badge status-aprovada';
+                statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> Aprovada';
+                devEl.textContent = dev;
+                if (data.whatsappMsg) {
+                    window.open(`https://wa.me/?text=${data.whatsappMsg}`, '_blank');
+                }
+            } else {
+                statusEl.className = 'status-badge status-reprovada';
+                statusEl.innerHTML = '<i class="bi bi-x-circle-fill"></i> Reprovada';
+            }
+
+            location.reload();
+        }
+    </script>
+}

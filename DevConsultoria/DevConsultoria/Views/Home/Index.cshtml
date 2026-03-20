@@ -1,0 +1,434 @@
+﻿@model List<DevConsultoria.Models.Problema>
+@{
+    ViewData["Title"] = "Serviços de Consultoria";
+}
+
+@section Styles {
+    <style>
+        .hero-section {
+            padding: 80px 0 60px;
+            background: radial-gradient(ellipse at 60% 0%, rgba(0,212,255,0.08) 0%, transparent 60%), radial-gradient(ellipse at 10% 80%, rgba(13,110,253,0.07) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.2);
+            color: #00d4ff;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: .05em;
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.8rem, 3vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+            .hero-title .highlight {
+                background: linear-gradient(135deg, #00d4ff, #0d6efd);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin-top: 36px;
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: .8rem;
+        }
+
+        .service-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 28px;
+            height: 100%;
+            transition: all .3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .service-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #00d4ff, #0d6efd);
+                opacity: 0;
+                transition: opacity .3s;
+            }
+
+            .service-card:hover {
+                border-color: rgba(0,212,255,0.25);
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            }
+
+                .service-card:hover::before {
+                    opacity: 1;
+                }
+
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(13,110,253,0.15));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #00d4ff;
+            margin-bottom: 18px;
+        }
+
+        .card-category {
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            color: #0d6efd;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+        }
+
+        .card-desc {
+            color: #64748b;
+            font-size: .88rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .tempo-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .8rem;
+            color: #94a3b8;
+        }
+
+            .tempo-badge i {
+                color: #22c55e;
+            }
+
+        .preco {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.05rem;
+        }
+
+        .btn-solicitar {
+            background: linear-gradient(135deg, #00d4ff, #0d6efd);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: .88rem;
+            transition: all .2s;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+            .btn-solicitar:hover {
+                transform: scale(1.02);
+                box-shadow: 0 8px 20px rgba(0,212,255,0.25);
+                color: #fff;
+            }
+
+        .modal-content {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .form-control, .form-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e2e8f0;
+            border-radius: 10px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background: rgba(255,255,255,0.08);
+                border-color: #00d4ff;
+                color: #fff;
+                box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+            }
+
+        .form-label {
+            color: #94a3b8;
+            font-size: .88rem;
+            font-weight: 500;
+        }
+
+        .alert-servico {
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(13,110,253,0.1));
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            color: #e2e8f0;
+        }
+
+        .toast-container {
+            z-index: 9999;
+        }
+
+        .toast-success {
+            background: #052e16;
+            border: 1px solid #16a34a;
+            color: #86efac;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #fff;
+        }
+    </style>
+}
+
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title">
+                    Problemas de Software?<br>
+                    <span class="highlight">Resolvemos rápido.</span>
+                </h1>
+                <p class="text-secondary mt-3 fs-6" style="max-width:500px;line-height:1.7">
+                    Time especializado em diagnóstico e resolução de problemas técnicos.
+                    Selecione seu problema, envie sua solicitação e acompanhe em tempo real.
+                </p>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Problemas resolvidos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2h</div>
+                        <div class="stat-label">Resposta mínima</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfação</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-end">
+                <div style="font-size:8rem;opacity:.15;font-family:'Syne',sans-serif;font-weight:800;color:#00d4ff;line-height:1">&lt;/&gt;</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 60px 0;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-0">
+                <i class="bi bi-grid-3x3-gap text-info me-2"></i>Nossos Serviços
+            </h2>
+            <span class="badge bg-dark border border-secondary text-secondary rounded-pill px-3">
+                @Model.Count disponíveis
+            </span>
+        </div>
+        <div class="row g-4">
+            @foreach (var problema in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="service-card" onclick="abrirModal(@problema.Id, '@Html.Raw(problema.Nome)', '@Html.Raw(problema.Descricao)', '@problema.TempoResposta', '@problema.Preco.ToString("C", new System.Globalization.CultureInfo("pt-BR"))')">
+                        <div class="card-icon">
+                            <i class="bi @problema.Icone"></i>
+                        </div>
+                        <div class="card-category">@problema.Categoria</div>
+                        <div class="card-title">@problema.Nome</div>
+                        <div class="card-desc">@problema.Descricao</div>
+                        <div class="card-footer-info">
+                            <span class="tempo-badge">
+                                <i class="bi bi-clock-fill"></i>
+                                @problema.TempoResposta
+                            </span>
+                            <span class="preco">@problema.Preco.ToString("C", new System.Globalization.CultureInfo("pt-BR"))</span>
+                        </div>
+                        <button class="btn btn-solicitar">
+                            <i class="bi bi-send me-2"></i>Solicitar Agora
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="modalSolicitar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header px-4 pt-4 pb-3">
+                <div>
+                    <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-weight:700;color:#fff">
+                        <i class="bi bi-send-check text-info me-2"></i>Solicitar Serviço
+                    </h5>
+                    <p class="text-secondary small mb-0">Preencha seus dados para enviar a solicitação</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <div class="alert-servico mb-4" id="infoServico">
+                    <div class="d-flex gap-3 align-items-start">
+                        <i class="bi bi-info-circle-fill text-info fs-5 mt-1"></i>
+                        <div>
+                            <strong id="infoNome" class="text-white d-block"></strong>
+                            <small id="infoDesc" class="text-secondary"></small>
+                            <div class="mt-2 d-flex gap-3">
+                                <span class="small"><i class="bi bi-clock text-success me-1"></i><span id="infoTempo"></span></span>
+                                <span class="small"><i class="bi bi-tag text-warning me-1"></i><span id="infoPreco"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Seu Nome Completo</label>
+                        <input type="text" class="form-control" id="nomeCliente" placeholder="Ex: João Silva" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Seu E-mail</label>
+                        <input type="email" class="form-control" id="emailCliente" placeholder="joao@empresa.com" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">
+                            <i class="bi bi-whatsapp text-success me-1"></i>WhatsApp para contato
+                        </label>
+                        <input type="text" class="form-control" id="whatsCliente" placeholder="(11) 99999-9999" />
+                    </div>
+                </div>
+                <input type="hidden" id="problemaIdHidden" />
+            </div>
+            <div class="modal-footer px-4 pb-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-solicitar w-auto px-4" onclick="enviarSolicitacao()">
+                    <i class="bi bi-send me-2"></i>Confirmar Solicitação
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastSucesso" class="toast toast-success" role="alert">
+        <div class="d-flex align-items-center gap-2 p-3">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <div>
+                <strong class="d-block">Solicitação enviada!</strong>
+                <small id="toastMsg"></small>
+            </div>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let problemaAtual = {};
+
+        function abrirModal(id, nome, descricao, tempo, preco) {
+            problemaAtual = { id, nome };
+            document.getElementById('infoNome').textContent = nome;
+            document.getElementById('infoDesc').textContent = descricao;
+            document.getElementById('infoTempo').textContent = tempo;
+            document.getElementById('infoPreco').textContent = preco;
+            document.getElementById('problemaIdHidden').value = id;
+            document.getElementById('nomeCliente').value = '';
+            document.getElementById('emailCliente').value = '';
+            document.getElementById('whatsCliente').value = '';
+            new bootstrap.Modal(document.getElementById('modalSolicitar')).show();
+        }
+
+        async function enviarSolicitacao() {
+            const nome = document.getElementById('nomeCliente').value.trim();
+            const email = document.getElementById('emailCliente').value.trim();
+            const whats = document.getElementById('whatsCliente').value.trim();
+            const id = document.getElementById('problemaIdHidden').value;
+
+            if (!nome || !email || !whats) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            try {
+                const resp = await fetch('/Home/Solicitar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nomeCliente: nome,
+                        emailCliente: email,
+                        nomeWhatsApp: whats,
+                        problemaId: parseInt(id),
+                        nomeProblema: problemaAtual.nome
+                    })
+                });
+                const data = await resp.json();
+                bootstrap.Modal.getInstance(document.getElementById('modalSolicitar')).hide();
+                document.getElementById('toastMsg').textContent = `Protocolo #${data.protocolo} - ${data.mensagem}`;
+                new bootstrap.Toast(document.getElementById('toastSucesso'), { delay: 6000 }).show();
+            } catch (e) {
+                alert('Erro ao enviar. Tente novamente.');
+            }
+        }
+    </script>
+}
